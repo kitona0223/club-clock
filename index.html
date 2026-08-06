@@ -1,208 +1,212 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLUB CLOCK</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLUB CLOCK</title>
 
-    <!-- 📱 スマホのホーム画面用アイコン設定 -->
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" type="image/png" href="icon.png">
-</head>
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" href="icon.png">
 
-
-<meta charset="UTF-8">
-<title>CLUB&#x20;CLOCK</title>
-<link rel="apple-touch-icon" href="icon.png">
-<style>
-  :root{
-    --bg: #0b1220;
-    --bg2: #10192e;
-    --line: #1e2b45;
-    --digit: #f4f7fb;
-    --accent: #ff7a3d;
-    --accent2: #35c9c1;
-    --muted: #6f84a8;
-  }
-  *{ box-sizing: border-box; }
-  html,body{
-    margin:0; height:100%;
-    background: radial-gradient(1200px 800px at 50% 30%, var(--bg2), var(--bg));
-    display:flex; align-items:center; justify-content:center;
-    font-family: 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', sans-serif;
-    overflow:hidden;
-  }
-  .board{
-    position:relative;
-    width:min(94vw, 1400px);
-    padding: clamp(20px, 4vw, 56px) clamp(24px, 5vw, 72px);
-    border-radius: 28px;
-    border: 1px solid var(--line);
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15));
-    text-align:center;
-    transition: all 0.3s ease;
-  }
-  .top-line{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap: 14px;
-    margin-bottom: clamp(10px, 2vw, 22px);
-  }
-  .dot{
-    width: 10px; height:10px; border-radius:50%;
-    background: var(--accent2);
-    box-shadow: 0 0 14px var(--accent2);
-  }
-  .label{
-    color: var(--muted);
-    letter-spacing: 0.5em;
-    margin-right: -0.5em;
-    font-size: clamp(12px, 1.4vw, 18px);
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-  .clock{
-    position: relative;
-    display:flex;
-    align-items:baseline;
-    justify-content:center;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-  .hm-wrap{
-    position: relative;
-    display: inline-block;
-  }
-  .time{
-    font-size: clamp(90px, 20vw, 300px);
-    font-weight: 800;
-    color: var(--digit);
-    letter-spacing: 0.02em;
-    text-shadow: 0 0 40px rgba(255,255,255,0.08);
-  }
-  .colon{
-    display: inline-block;
-    color: var(--accent);
-    animation: blink 2s steps(1) infinite;
-    margin: 0 clamp(4px, 1vw, 14px);
-    transform: translateY(-0.08em);
-  }
-  @keyframes blink{
-    0%, 49%{ opacity:1; }
-    50%, 100%{ opacity:0.25; }
-  }
-  .seconds{
-    position: absolute;
-    left: 100%;
-    bottom: 0.12em;
-    font-size: clamp(32px, 6vw, 90px);
-    font-weight: 700;
-    color: var(--accent2);
-    margin-left: clamp(4px, 0.6vw, 10px);
-    text-align:left;
-    white-space: nowrap;
-  }
-  .date-row{
-    margin-top: clamp(14px, 3vw, 30px);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap: 18px;
-    flex-wrap: wrap;
-  }
-  .date{
-    font-size: clamp(20px, 3vw, 40px);
-    color: var(--digit);
-    font-weight: 600;
-  }
-  .weekday{
-    font-size: clamp(20px, 3vw, 40px);
-    font-weight: 700;
-    padding: 4px 20px;
-    border-radius: 999px;
-    color: var(--bg);
-    background: var(--accent);
-  }
-  .weekday.sun{ background:#ff5c6e; }
-  .weekday.sat{ background:#35c9c1; }
-
-  @media (prefers-reduced-motion: reduce){
-    .colon{ animation:none; opacity:1; }
-  }
-
-  /* 🔄 スマホを横向き（撮影モード）にした時の表示 */
-  @media (orientation: landscape) {
-    body {
-      background: #000000;
+  <style>
+    :root {
+      --bg: #0b1220;
+      --bg2: #10192e;
+      --line: #1e2b45;
+      --digit: #f4f7fb;
+      --accent: #ff7a3d;
+      --accent2: #35c9c1;
+      --muted: #6f84a8;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; 
+      height: 100%;
+      background: radial-gradient(1200px 800px at 50% 30%, var(--bg2), var(--bg));
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      font-family: 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      overflow: hidden;
+      /* 画面長押しでのテキスト選択を防止 */
+      user-select: none;
+      -webkit-user-select: none;
     }
     .board {
-      width: 100vw;
-      height: 100vh;
-      border: none;
-      background: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0;
-      transform: translateY(-13vh); /* URLバー対策の上上げ */
+      position: relative;
+      width: min(94vw, 1400px);
+      padding: clamp(20px, 4vw, 56px) clamp(24px, 5vw, 72px);
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15));
+      text-align: center;
+      transition: all 0.3s ease;
     }
-    /* 🌟 横画面でもタイトルを表示させる！ */
     .top-line {
       display: flex;
-      margin-bottom: 1vh;
-    }
-    .label {
-      font-size: 3vh;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: clamp(10px, 2vw, 22px);
     }
     .dot {
-      width: 1.5vh;
-      height: 1.5vh;
+      width: 10px; 
+      height: 10px; 
+      border-radius: 50%;
+      background: var(--accent2);
+      box-shadow: 0 0 14px var(--accent2);
+    }
+    .label {
+      color: var(--muted);
+      letter-spacing: 0.5em;
+      margin-right: -0.5em;
+      font-size: clamp(12px, 1.4vw, 18px);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .clock {
+      position: relative;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .hm-wrap {
+      position: relative;
+      display: inline-block;
     }
     .time {
-      font-size: 36vh;
+      font-size: clamp(90px, 20vw, 300px);
+      font-weight: 800;
+      color: var(--digit);
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 40px rgba(255,255,255,0.08);
+      font-variant-numeric: tabular-nums;
+    }
+    .colon {
+      display: inline-block;
+      color: var(--accent);
+      animation: blink 2s steps(1) infinite;
+      margin: 0 clamp(4px, 1vw, 14px);
+      transform: translateY(-0.08em);
+    }
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0.25; }
     }
     .seconds {
-      font-size: 10vh;
-      bottom: 0.05em;
+      position: absolute;
+      left: 100%;
+      bottom: 0.12em;
+      font-size: clamp(32px, 6vw, 90px);
+      font-weight: 700;
+      color: var(--accent2);
+      margin-left: clamp(4px, 0.6vw, 10px);
+      text-align: left;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
     .date-row {
-      margin-top: 1vh;
+      margin-top: clamp(14px, 3vw, 30px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
     }
-    .date, .weekday {
-      font-size: 6vh;
+    .date {
+      font-size: clamp(20px, 3vw, 40px);
+      color: var(--digit);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
     }
-  }
+    .weekday {
+      font-size: clamp(20px, 3vw, 40px);
+      font-weight: 700;
+      padding: 4px 20px;
+      border-radius: 999px;
+      color: var(--bg);
+      background: var(--accent);
+    }
+    .weekday.sun { background: #ff5c6e; }
+    .weekday.sat { background: #35c9c1; }
 
-  /* ☕️ 縦画面のときだけ浮いて表示される応援ボタン */
-  .bmc-container {
-    position: fixed;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 9999;
-  }
-  .bmc-button {
-    display: inline-block;
-    background-color: #ffdd00;
-    color: #000000;
-    font-weight: bold;
-    font-size: 13px;
-    padding: 8px 16px;
-    border-radius: 20px;
-    text-decoration: none;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    white-space: nowrap;
-  }
-  @media (orientation: landscape) {
-    .bmc-container {
-      display: none !important;
+    @media (prefers-reduced-motion: reduce) {
+      .colon { animation: none; opacity: 1; }
     }
-  }
-</style>
+
+    /* 🔄 スマホを横向きにした時の表示 */
+    @media (orientation: landscape) {
+      body {
+        background: #000000;
+      }
+      .board {
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        background: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0;
+        transform: translateY(-3vh);
+      }
+      .top-line {
+        display: flex;
+        margin-bottom: 1vh;
+      }
+      .label {
+        font-size: 3vh;
+      }
+      .dot {
+        width: 1.5vh;
+        height: 1.5vh;
+      }
+      .time {
+        font-size: 36vh;
+      }
+      .seconds {
+        font-size: 10vh;
+        bottom: 0.05em;
+      }
+      .date-row {
+        margin-top: 2vh;
+      }
+      .date, .weekday {
+        font-size: 5vh;
+      }
+    }
+
+    /* ☕️ 応援ボタン */
+    .bmc-container {
+      position: fixed;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+    }
+    .bmc-button {
+      display: inline-block;
+      background-color: #ffdd00;
+      color: #000000;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      white-space: nowrap;
+    }
+    @media (orientation: landscape) {
+      .bmc-container {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
+
   <div class="board">
     <div class="top-line">
       <span class="dot"></span>
@@ -222,32 +226,55 @@
   </div>
 
   <script>
-  const hmEl = document.getElementById('hm');
-  const secEl = document.getElementById('sec');
-  const dateEl = document.getElementById('date');
-  const weekdayEl = document.getElementById('weekday');
-  const days = ['日','月','火','水','木','金','土'];
+    const hmEl = document.getElementById('hm');
+    const secEl = document.getElementById('sec');
+    const dateEl = document.getElementById('date');
+    const weekdayEl = document.getElementById('weekday');
+    const days = ['日','月','火','水','木','金','土'];
 
-  function pad(n){ return String(n).padStart(2,'0'); }
+    function pad(n) { return String(n).padStart(2, '0'); }
 
-  function tick(){
-    const now = new Date();
-    const h = pad(now.getHours());
-    const m = pad(now.getMinutes());
-    const s = pad(now.getSeconds());
+    function tick() {
+      const now = new Date();
+      const h = pad(now.getHours());
+      const m = pad(now.getMinutes());
+      const s = pad(now.getSeconds());
 
-    hmEl.innerHTML = h + '<span class="colon">:</span>' + m;
-    secEl.textContent = s;
+      hmEl.innerHTML = h + '<span class="colon">:</span>' + m;
+      secEl.textContent = s;
 
-    dateEl.textContent = now.getFullYear() + '年' + (now.getMonth()+1) + '月' + now.getDate() + '日';
+      dateEl.textContent = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日';
 
-    const dIdx = now.getDay();
-    weekdayEl.textContent = days[dIdx] + '曜日';
-    weekdayEl.className = 'weekday' + (dIdx === 0 ? ' sun' : dIdx === 6 ? ' sat' : '');
-  }
+      const dIdx = now.getDay();
+      weekdayEl.textContent = days[dIdx] + '曜日';
+      weekdayEl.className = 'weekday' + (dIdx === 0 ? ' sun' : dIdx === 6 ? ' sat' : '');
+    }
 
-  tick();
-  setInterval(tick, 1000);
-</script>
+    tick();
+    setInterval(tick, 1000);
+
+    // 💡 体育館用：画面の自動スリープ（消灯）を防止する処理
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {
+        console.log('Wake Lock Error:', err);
+      }
+    }
+    
+    // 画面を開いた時＆タップした時にスリープ防止を有効化
+    requestWakeLock();
+    document.addEventListener('click', requestWakeLock);
+    
+    // タブ切り替えから戻った時にも再適用
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        requestWakeLock();
+      }
+    });
+  </script>
 </body>
 </html>
