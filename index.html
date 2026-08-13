@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CLUB CLOCK</title>
-
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="icon" type="image/png" href="icon.png">
+  
+  <!-- 🌐 Supabase SDK（認証・データベース連携用ライブラリ）の読み込み -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
@@ -18,13 +20,15 @@
       --accent2: #35c9c1;
       --muted: #6f84a8;
     }
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
     html, body {
-      margin: 0; 
+      margin: 0;
       height: 100%;
       background: radial-gradient(1200px 800px at 50% 30%, var(--bg2), var(--bg));
-      display: flex; 
-      align-items: center; 
+      display: flex;
+      align-items: center;
       justify-content: center;
       font-family: 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', sans-serif;
       overflow: hidden;
@@ -50,8 +54,8 @@
       margin-bottom: clamp(10px, 2vw, 22px);
     }
     .dot {
-      width: 10px; 
-      height: 10px; 
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: var(--accent2);
       box-shadow: 0 0 14px var(--accent2);
@@ -129,11 +133,17 @@
       color: var(--bg);
       background: var(--accent);
     }
-    .weekday.sun { background: #ff5c6e; }
-    .weekday.sat { background: #35c9c1; }
-
+    .weekday.sun {
+      background: #ff5c6e;
+    }
+    .weekday.sat {
+      background: #35c9c1;
+    }
     @media (prefers-reduced-motion: reduce) {
-      .colon { animation: none; opacity: 1; }
+      .colon {
+        animation: none;
+        opacity: 1;
+      }
     }
 
     /* 🔄 スマホを横向きにした時の表示 */
@@ -203,11 +213,134 @@
         display: none !important;
       }
     }
+
+    /* 🔐 認証画面（ログイン・ライセンス認証）用の追加スタイル */
+    .auth-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--bg);
+      background: radial-gradient(1200px 800px at 50% 30%, var(--bg2), var(--bg));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      padding: 20px;
+    }
+    .auth-card {
+      background-color: var(--bg2);
+      border: 2px solid var(--line);
+      border-radius: 24px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .auth-card h2 {
+      margin-top: 0;
+      color: var(--accent2);
+      font-size: clamp(20px, 2.5vw, 24px);
+      text-shadow: 0 0 15px rgba(53, 201, 193, 0.3);
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+    .auth-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .auth-input {
+      width: 100%;
+      padding: 12px 16px;
+      margin: 8px 0;
+      background-color: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--digit);
+      font-size: 16px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .auth-input:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 10px rgba(53, 201, 193, 0.15);
+    }
+    .auth-btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .auth-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-btn:active {
+      transform: scale(0.97);
+    }
+    .btn-primary { 
+      background-color: var(--accent2); 
+      color: var(--bg); 
+    }
+    .btn-secondary { 
+      background-color: var(--line); 
+      color: var(--digit); 
+    }
+    .btn-accent { 
+      background-color: var(--accent); 
+      color: var(--bg); 
+      width: 100%;
+      margin-top: 12px;
+    }
+    
+    /* ユーティリティ */
+    .hidden { 
+      display: none !important; 
+    }
   </style>
 </head>
 <body>
 
-  <div class="board">
+  <!-- 🔐 ログイン・ライセンス認証パネル -->
+  <div id="auth-panel" class="auth-container">
+    <div class="auth-card">
+      <h2>🔑 CLUB CLOCK 認証</h2>
+      <p id="auth-message">アプリを利用するにはログインとライセンスキーが必要です。</p>
+      
+      <!-- ① ログイン / 新規登録フォーム -->
+      <div id="login-form">
+        <input type="email" id="auth-email" placeholder="メールアドレス" class="auth-input">
+        <input type="password" id="auth-password" placeholder="パスワード" class="auth-input">
+        <div class="auth-btn-group">
+          <button onclick="handleLogin()" class="auth-btn btn-primary">ログイン</button>
+          <button onclick="handleSignUp()" class="auth-btn btn-secondary">新規登録（無料）</button>
+        </div>
+      </div>
+
+      <!-- ② ライセンスキー入力フォーム（ログイン完了後に未購入の場合に表示） -->
+      <div id="license-form" style="display: none;">
+        <p style="color: var(--accent); font-weight: bold;">⚠️ ライセンス認証が必要です。CryptoHouse等で購入したライセンスキーを入力してください。</p>
+        <input type="text" id="license-key" placeholder="CLOCK-XXXX-XXXX" class="auth-input">
+        <button onclick="handleActivateKey()" class="auth-btn btn-accent">ライセンスを有効化する</button>
+        <button onclick="handleLogout()" class="auth-btn btn-secondary" style="margin-top: 12px; width: 100%;">ログアウト</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⏱️ CLUB CLOCK メイン画面（デフォルトで非表示、認証成功で解放） -->
+  <div class="board hidden">
     <div class="top-line">
       <span class="dot"></span>
       <span class="label">CLUB CLOCK</span>
@@ -225,38 +358,196 @@
     </div>
   </div>
 
+  <!-- ☕️ 応援ボタン（未購入時は非表示にするため、board内からbody直下へ移動） -->
+  <div class="bmc-container hidden">
+    <a class="bmc-button" target="_blank" href="https://www.buymeacoffee.com/">☕️ Buy me a coffee</a>
+  </div>
+
   <script>
+    // ==========================================
+    // ⚙️ Supabase 接続情報の設定
+    // ==========================================
+    // ⚠️ 下記の「your-project.supabase.co」と「your-anon-key」を、ご自身のSupabaseの設定値に書き換えてください。
+    const SUPABASE_URL = 'https://zeppnyfcmqqwwgbeothx.supabase.co/rest/v1/'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplcHBueWZjbXFxd3dnYmVvdGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1MzY5NjMsImV4cCI6MjEwMjExMjk2M30.wWodlGbicpwChSmas3YGE996HEs_0NBSqfHCZPTgv78'; 
+
+    let supabaseClient = null;
+
+    // Supabaseの初期設定チェック
+    if (SUPABASE_URL.startsWith('https://your-project')) {
+      document.getElementById('auth-message').innerHTML = '<span style="color: #ff5c6e; font-weight: bold; font-size: 13px;">【重要】コード内の「SUPABASE_URL」と「SUPABASE_ANON_KEY」の設定を行ってください。</span>';
+    } else {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    // ==========================================
+    // 🔐 認証 ＆ アクセス制限ロジック
+    // ==========================================
+    async function checkAccess() {
+      if (!supabaseClient) return;
+
+      const { data: { user } } = await supabaseClient.auth.getUser();
+
+      // 1. ログインしていない場合 ➔ ログイン画面を表示
+      if (!user) {
+        document.getElementById('auth-panel').classList.remove('hidden');
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('license-form').style.display = 'none';
+        
+        document.querySelector('.board').classList.add('hidden');
+        document.querySelector('.bmc-container').classList.add('hidden');
+        stopClock();
+        return;
+      }
+
+      // 2. ログインしている場合 ➔ データベースで購入（is_paid）フラグをチェック
+      const { data, error } = await supabaseClient
+        .from('profiles')
+        .select('is_paid')
+        .eq('id', user.id)
+        .single();
+
+      if (data && data.is_paid) {
+        // 購入済み ➔ 認証パネルを隠し、時計アプリを解放！
+        document.getElementById('auth-panel').classList.add('hidden');
+        document.querySelector('.board').classList.remove('hidden');
+        document.querySelector('.bmc-container').classList.remove('hidden');
+        startClock();
+      } else {
+        // ログインはしているが未購入 ➔ ライセンスキー入力画面を表示
+        document.getElementById('auth-panel').classList.remove('hidden');
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('license-form').style.display = 'block';
+        
+        document.querySelector('.board').classList.add('hidden');
+        document.querySelector('.bmc-container').classList.add('hidden');
+        stopClock();
+      }
+    }
+
+    // 新規無料会員登録
+    async function handleSignUp() {
+      if (!supabaseClient) return;
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+
+      if (!email || !password) {
+        alert('メールアドレスとパスワードを入力してください。');
+        return;
+      }
+
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+      
+      if (error) {
+        alert('登録エラー: ' + error.message);
+      } else {
+        alert('登録メールを送信しました！メール内の認証リンクをクリックしてアカウントを有効化してから、再度ログインしてください。');
+      }
+    }
+
+    // ログイン処理
+    async function handleLogin() {
+      if (!supabaseClient) return;
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+
+      if (!email || !password) {
+        alert('メールアドレスとパスワードを入力してください。');
+        return;
+      }
+
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      
+      if (error) {
+        alert('ログイン失敗: ' + error.message);
+      } else {
+        checkAccess();
+      }
+    }
+
+    // ライセンスキー有効化
+    async function handleActivateKey() {
+      if (!supabaseClient) return;
+      const key = document.getElementById('license-key').value.trim();
+      if (!key) {
+        alert('ライセンスキーを入力してください。');
+        return;
+      }
+
+      // Supabaseのデータベース関数 (activate_license) を呼び出す
+      const { data: isSuccess, error } = await supabaseClient.rpc('activate_license', { input_key: key });
+
+      if (error) {
+        alert('検証中にエラーが発生しました: ' + error.message);
+      } else if (isSuccess) {
+        alert('ライセンスの有効化に成功しました！CLUB CLOCKを解放します。');
+        checkAccess();
+      } else {
+        alert('無効なライセンスキー、または既に使用されているキーです。');
+      }
+    }
+
+    // ログアウト処理
+    async function handleLogout() {
+      if (!supabaseClient) return;
+      await supabaseClient.auth.signOut();
+      checkAccess();
+    }
+
+    // ==========================================
+    // ⏱️ CLUB CLOCK オリジナル時計ロジック
+    // ==========================================
     const hmEl = document.getElementById('hm');
     const secEl = document.getElementById('sec');
     const dateEl = document.getElementById('date');
     const weekdayEl = document.getElementById('weekday');
     const days = ['日','月','火','水','木','金','土'];
+    let clockIntervalId = null;
 
-    function pad(n) { return String(n).padStart(2, '0'); }
+    function pad(n) {
+      return String(n).padStart(2, '0');
+    }
 
     function tick() {
       const now = new Date();
       const h = pad(now.getHours());
       const m = pad(now.getMinutes());
       const s = pad(now.getSeconds());
-
       hmEl.innerHTML = h + '<span class="colon">:</span>' + m;
       secEl.textContent = s;
-
       dateEl.textContent = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日';
-
       const dIdx = now.getDay();
       weekdayEl.textContent = days[dIdx] + '曜日';
       weekdayEl.className = 'weekday' + (dIdx === 0 ? ' sun' : dIdx === 6 ? ' sat' : '');
     }
 
-    tick();
-    setInterval(tick, 1000);
+    // 時計の制御（認証成功時のみ開始）
+    function startClock() {
+      tick();
+      if (!clockIntervalId) {
+        clockIntervalId = setInterval(tick, 1000);
+      }
+      requestWakeLock();
+    }
 
-    // 💡 体育館用：画面の自動スリープ（消灯）を防止する処理
+    function stopClock() {
+      if (clockIntervalId) {
+        clearInterval(clockIntervalId);
+        clockIntervalId = null;
+      }
+      releaseWakeLock();
+    }
+
+    // ==========================================
+    // 💡 スリープ防止（Wake Lock API）
+    // ==========================================
     let wakeLock = null;
     async function requestWakeLock() {
       try {
+        // ログイン＆購入済みの場合のみスリープ防止を適用
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) return;
+
         if ('wakeLock' in navigator) {
           wakeLock = await navigator.wakeLock.request('screen');
         }
@@ -264,17 +555,27 @@
         console.log('Wake Lock Error:', err);
       }
     }
-    
-    // 画面を開いた時＆タップした時にスリープ防止を有効化
-    requestWakeLock();
-    document.addEventListener('click', requestWakeLock);
-    
-    // タブ切り替えから戻った時にも再適用
+
+    function releaseWakeLock() {
+      if (wakeLock !== null) {
+        wakeLock.release().then(() => {
+          wakeLock = null;
+        });
+      }
+    }
+
+    document.addEventListener('click', () => {
+      if (supabaseClient) requestWakeLock();
+    });
+
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
-        requestWakeLock();
+        if (supabaseClient) requestWakeLock();
       }
     });
+
+    // 🚀 起動時にアクセス状況を自動チェック
+    checkAccess();
   </script>
 </body>
 </html>
