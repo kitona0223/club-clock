@@ -188,32 +188,6 @@
       }
     }
 
-    /* ☕️ 応援ボタン */
-    .bmc-container {
-      position: fixed;
-      bottom: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-    }
-    .bmc-button {
-      display: inline-block;
-      background-color: #ffdd00;
-      color: #000000;
-      font-weight: bold;
-      font-size: 13px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      white-space: nowrap;
-    }
-    @media (orientation: landscape) {
-      .bmc-container {
-        display: none !important;
-      }
-    }
-
     /* 🔐 認証画面（ログイン・ライセンス認証）用の追加スタイル */
     .auth-container {
       position: fixed;
@@ -358,18 +332,13 @@
     </div>
   </div>
 
-  <!-- ☕️ 応援ボタン（未購入時は非表示にするため、board内からbody直下へ移動） -->
-  <div class="bmc-container hidden">
-    <a class="bmc-button" target="_blank" href="https://www.buymeacoffee.com/">☕️ Buy me a coffee</a>
-  </div>
-
   <script>
     // ==========================================
     // ⚙️ Supabase 接続情報の設定
     // ==========================================
     // ⚠️ 下記の「your-project.supabase.co」と「your-anon-key」を、ご自身のSupabaseの設定値に書き換えてください。
-    const SUPABASE_URL = 'https://zeppnyfcmqqwwgbeothx.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplcHBueWZjbXFxd3dnYmVvdGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1MzY5NjMsImV4cCI6MjEwMjExMjk2M30.wWodlGbicpwChSmas3YGE996HEs_0NBSqfHCZPTgv78'; 
+    const SUPABASE_URL = 'https://your-project.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'your-anon-key'; 
 
     let supabaseClient = null;
 
@@ -395,7 +364,6 @@
         document.getElementById('license-form').style.display = 'none';
         
         document.querySelector('.board').classList.add('hidden');
-        document.querySelector('.bmc-container').classList.add('hidden');
         stopClock();
         return;
       }
@@ -411,7 +379,6 @@
         // 購入済み ➔ 認証パネルを隠し、時計アプリを解放！
         document.getElementById('auth-panel').classList.add('hidden');
         document.querySelector('.board').classList.remove('hidden');
-        document.querySelector('.bmc-container').classList.remove('hidden');
         startClock();
       } else {
         // ログインはしているが未購入 ➔ ライセンスキー入力画面を表示
@@ -420,7 +387,6 @@
         document.getElementById('license-form').style.display = 'block';
         
         document.querySelector('.board').classList.add('hidden');
-        document.querySelector('.bmc-container').classList.add('hidden');
         stopClock();
       }
     }
@@ -441,7 +407,8 @@
       if (error) {
         alert('登録エラー: ' + error.message);
       } else {
-        alert('登録メールを送信しました！メール内の認証リンクをクリックしてアカウントを有効化してから、再度ログインしてください。');
+        // 💡 認証メール不要のフローに合わせたアラートメッセージに変更
+        alert('アカウント作成が完了しました！\nそのまま「ログイン」ボタンを押してログインしてください。');
       }
     }
 
