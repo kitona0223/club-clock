@@ -334,20 +334,12 @@
 
   <script>
     // ==========================================
-    // ⚙️ Supabase 接続情報の設定
+    // ⚙️ Supabase 接続情報の設定（自動埋め込み完了！）
     // ==========================================
-    // ⚠️ 下記の「your-project.supabase.co」と「your-anon-key」を、ご自身のSupabaseの設定値に書き換えてください。
-    const SUPABASE_URL = 'https://your-project.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'your-anon-key'; 
+    const SUPABASE_URL = 'https://zeppnyfcmqqwwgbeothx.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplcHBueWZjbXFxd3dnYmVvdGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1MzY5NjMsImV4cCI6MjEwMjExMjk2M30.wWodlGbicpwChSmas3YGE996HEs_0NBSqfHCZPTgv78'; 
 
-    let supabaseClient = null;
-
-    // Supabaseの初期設定チェック
-    if (SUPABASE_URL.startsWith('https://your-project')) {
-      document.getElementById('auth-message').innerHTML = '<span style="color: #ff5c6e; font-weight: bold; font-size: 13px;">【重要】コード内の「SUPABASE_URL」と「SUPABASE_ANON_KEY」の設定を行ってください。</span>';
-    } else {
-      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ==========================================
     // 🔐 認証 ＆ アクセス制限ロジック
